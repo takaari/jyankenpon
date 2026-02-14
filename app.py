@@ -7,7 +7,7 @@ st.title("✊✌✋ じゃんけん")
 
 hands = ["✊", "✌", "✋"]
 
-# ===== セッション初期化 =====
+# ===== 初期化 =====
 if "player" not in st.session_state:
     st.session_state.player = None
 if "computer" not in st.session_state:
@@ -16,7 +16,24 @@ if "phase" not in st.session_state:
     st.session_state.phase = "select"
 # select → janken → pon → result
 
-# ===== 表示エリア（上） =====
+# ===== コールバック =====
+def select_hand(hand):
+    st.session_state.player = hand
+    st.session_state.phase = "janken"
+
+def go_janken():
+    st.session_state.phase = "pon"
+
+def go_pon():
+    st.session_state.computer = random.choice(hands)
+    st.session_state.phase = "result"
+
+def reset():
+    st.session_state.player = None
+    st.session_state.computer = None
+    st.session_state.phase = "select"
+
+# ===== 表示エリア =====
 st.markdown("## 相手の手")
 
 if st.session_state.phase == "result":
@@ -45,37 +62,27 @@ st.divider()
 # ===== フェーズ別UI =====
 if st.session_state.phase == "select":
     st.markdown("### 手を選んでください")
-
     col1, col2, col3 = st.columns(3)
+
     with col1:
-        if st.button("✊", use_container_width=True):
-            st.session_state.player = "✊"
-            st.session_state.phase = "janken"
+        st.button("✊", use_container_width=True,
+                  on_click=select_hand, args=("✊",))
     with col2:
-        if st.button("✌", use_container_width=True):
-            st.session_state.player = "✌"
-            st.session_state.phase = "janken"
+        st.button("✌", use_container_width=True,
+                  on_click=select_hand, args=("✌",))
     with col3:
-        if st.button("✋", use_container_width=True):
-            st.session_state.player = "✋"
-            st.session_state.phase = "janken"
+        st.button("✋", use_container_width=True,
+                  on_click=select_hand, args=("✋",))
 
 elif st.session_state.phase == "janken":
     st.markdown("### 準備OK")
-    if st.button("じゃんけん", use_container_width=True):
-        with st.spinner("……"):
-            time.sleep(0.6)
-        st.session_state.phase = "pon"
+    st.button("じゃんけん", use_container_width=True,
+              on_click=go_janken)
 
 elif st.session_state.phase == "pon":
-    if st.button("ぽん！", use_container_width=True):
-        with st.spinner("ぽん！"):
-            time.sleep(0.4)
-        st.session_state.computer = random.choice(hands)
-        st.session_state.phase = "result"
+    st.button("ぽん！", use_container_width=True,
+              on_click=go_pon)
 
 elif st.session_state.phase == "result":
-    if st.button("もう一回 🔁", use_container_width=True):
-        st.session_state.player = None
-        st.session_state.computer = None
-        st.session_state.phase = "select"
+    st.button("もう一回 🔁", use_container_width=True,
+              on_click=reset)
