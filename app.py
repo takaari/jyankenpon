@@ -3,7 +3,11 @@ import random
 import time
 
 st.set_page_config(page_title="じゃんけん", page_icon="✊")
-st.title("✊✌✋ じゃんけん")
+st.markdown(
+    "<h1 style='font-style: italic; text-align: center;'>✌ jyanken-pon ✌</h1>",
+    unsafe_allow_html=True
+)
+
 
 hands = ["✊", "✌", "✋"]
 
