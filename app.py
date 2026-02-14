@@ -14,22 +14,17 @@ if "computer" not in st.session_state:
     st.session_state.computer = None
 if "phase" not in st.session_state:
     st.session_state.phase = "select"
-if "shuffling" not in st.session_state:
-    st.session_state.shuffling = False
-if "temp_hand" not in st.session_state:
-    st.session_state.temp_hand = "✊"
+# select → janken → pon → result
 
 # ===== コールバック =====
 def select_hand(hand):
     st.session_state.player = hand
     st.session_state.phase = "janken"
 
-def start_shuffling():
-    st.session_state.phase = "shuffling"
-    st.session_state.shuffling = True
+def go_janken():
+    st.session_state.phase = "pon"
 
-def decide():
-    st.session_state.shuffling = False
+def go_pon():
     st.session_state.computer = random.choice(hands)
     st.session_state.phase = "result"
 
@@ -37,37 +32,27 @@ def reset():
     st.session_state.player = None
     st.session_state.computer = None
     st.session_state.phase = "select"
-    st.session_state.shuffling = False
 
 # ===== 表示エリア =====
 st.markdown("## 相手の手")
-display = st.empty()
 
 if st.session_state.phase == "result":
-    display.markdown(
+    st.markdown(
         f"<div style='font-size:80px; text-align:center;'>"
         f"{st.session_state.computer}"
         f"</div>",
         unsafe_allow_html=True
     )
 
-elif st.session_state.phase == "shuffling":
-    # 1フレーム分だけ更新
-    st.session_state.temp_hand = random.choice(hands)
-    display.markdown(
+    st.markdown("## あなたの手")
+    st.markdown(
         f"<div style='font-size:80px; text-align:center;'>"
-        f"{st.session_state.temp_hand}"
+        f"{st.session_state.player}"
         f"</div>",
         unsafe_allow_html=True
     )
-
-    # 少し待って自動再実行
-    time.sleep(0.12)
-    if st.session_state.shuffling:
-        st.rerun()
-
 else:
-    display.markdown(
+    st.markdown(
         "<div style='font-size:40px; text-align:center; color:gray;'>？？？</div>",
         unsafe_allow_html=True
     )
@@ -78,6 +63,7 @@ st.divider()
 if st.session_state.phase == "select":
     st.markdown("### 手を選んでください")
     col1, col2, col3 = st.columns(3)
+
     with col1:
         st.button("✊", use_container_width=True,
                   on_click=select_hand, args=("✊",))
@@ -89,20 +75,15 @@ if st.session_state.phase == "select":
                   on_click=select_hand, args=("✋",))
 
 elif st.session_state.phase == "janken":
+    st.markdown("### 準備OK")
     st.button("じゃんけん", use_container_width=True,
-              on_click=start_shuffling)
+              on_click=go_janken)
 
-elif st.session_state.phase == "shuffling":
+elif st.session_state.phase == "pon":
     st.button("ぽん！", use_container_width=True,
-              on_click=decide)
+              on_click=go_pon)
 
 elif st.session_state.phase == "result":
-    st.markdown("## あなたの手")
-    st.markdown(
-        f"<div style='font-size:80px; text-align:center;'>"
-        f"{st.session_state.player}"
-        f"</div>",
-        unsafe_allow_html=True
-    )
     st.button("もう一回 🔁", use_container_width=True,
               on_click=reset)
+
